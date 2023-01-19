@@ -8,6 +8,13 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+var keyboard = tgbotapi.NewReplyKeyboard(
+	tgbotapi.NewKeyboardButtonRow(
+		tgbotapi.NewKeyboardButton("Создать картинку"),
+		tgbotapi.NewKeyboardButton("Помощь"),
+	),
+)
+
 func main() {
 	// подключение .env
 	err := godotenv.Load()
@@ -22,6 +29,8 @@ func main() {
 	}
 
 	bot.Debug = true
+
+	log.Printf("Authorized on account %s", bot.Self.UserName)
 
 	// сообщаем о том, что мы обработали предыдущие сообщенияи нам не нужно их повторять
 	updateConfig := tgbotapi.NewUpdate(0)
@@ -38,14 +47,19 @@ func main() {
 		}
 
 		// отправка сообщения
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
 		switch update.Message.Command() {
-		case "create":
-			msg.Text = "Напишите текст, который хотите поместить на картинке"
-		case "help":
-			msg.Text = "Пока здесь ничего нет"
+		case "start":
+			msg.ReplyMarkup = keyboard
 		default:
-			msg.Text = "Я не знаю такой команды"
+			switch update.Message.Text {
+			case "Создать картинку":
+				msg.Text = "Это создание картинки"
+			case "Помощь":
+				msg.Text = "Это помощь"
+			default:
+				msg.Text = "Для начала работы введите /start"
+			}
 		}
 		if _, err := bot.Send(msg); err != nil {
 			panic(err)
