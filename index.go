@@ -16,7 +16,6 @@ var keyboard = tgbotapi.NewReplyKeyboard(
 )
 
 func main() {
-	// подключение .env
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -54,7 +53,10 @@ func main() {
 		default:
 			switch update.Message.Text {
 			case "Создать картинку":
-				msg.Text = "Это создание картинки"
+				img := tgbotapi.NewPhoto(update.Message.Chat.ID, tgbotapi.FilePath("image.png"))
+				if _, err := bot.Send(img); err != nil {
+					panic(err)
+				}
 			case "Помощь":
 				msg.Text = "Это помощь"
 			default:
